@@ -28,6 +28,7 @@ def generate_output_file_path(geometry_path: Path, output_dir: Path) -> Path:
     output_file = output_dir / filename.name.replace(".gdml", ".lh5")
     return output_file
 
+
 def generate_macro(args) -> str:
     """Generate a macro file for the remage geometry benchmark.
 
@@ -52,16 +53,14 @@ def generate_macro(args) -> str:
     output_file = generate_output_file_path(geometry_path, output_dir)
     if issubclass(type(args.grid_increments), str) and args.grid_increments:
         grid_increments = ast.literal_eval(args.grid_increments)
-        increment_x = grid_increments.get('x', args.grid_increment)
-        increment_y = grid_increments.get('y', args.grid_increment)
-        increment_z = grid_increments.get('z', args.grid_increment)
+        increment_x = grid_increments.get("x", args.grid_increment)
+        increment_y = grid_increments.get("y", args.grid_increment)
+        increment_z = grid_increments.get("z", args.grid_increment)
     else:
         increment_x = args.grid_increment
         increment_y = args.grid_increment
         increment_z = args.grid_increment
     n_events = args.num_events
-
-
 
     macro_content = f"""
 /RMG/Geometry/IncludeGDMLFile {filename}
@@ -78,7 +77,7 @@ def generate_macro(args) -> str:
 
 /run/beamOn {n_events}
     """
-    
+
     if args.dry_run:
         print("Dry run enabled. Generated macro content:")
         print(macro_content)
@@ -94,8 +93,8 @@ def remage_geometry_benchmark_cli() -> int:
     """Command-line interface for the remage geometry benchmark.
 
     This function parses command-line arguments, sets up the macros, runs
-    the geometry benchmark using the remage simulation framework, and analyzes 
-    the output plus provides a summary of the results. 
+    the geometry benchmark using the remage simulation framework, and analyzes
+    the output plus provides a summary of the results.
 
     Returns
     -------
@@ -126,25 +125,25 @@ def remage_geometry_benchmark_cli() -> int:
         "--grid-increment",
         type=float,
         default=1,
-        help="Increment between grid points in the benchmark geometry given in mm. The same for all dimensions."
+        help="Increment between grid points in the benchmark geometry given in mm. The same for all dimensions.",
     )
     parser.add_argument(
         "--grid-increments",
         type=str,
         default="",
-        help="Increment of individual grid point distances per dimension given in mm. Example: {'x': 1., 'y': 2., 'z': 3}"
+        help="Increment of individual grid point distances per dimension given in mm. Example: {'x': 1., 'y': 2., 'z': 3}",
     )
     parser.add_argument(
         "--dry-run",
         action="store_true",
-        help="If set, only generate the macro file without running remage."
+        help="If set, only generate the macro file without running remage.",
     )
     parser.add_argument(
         "--draw-wireframe",
         action="store_true",
-        help="(Experimental) If set, draw the wireframe of the geometry in the summary. Warning: only use when geometry is simple enough."
+        help="(Experimental) If set, draw the wireframe of the geometry in the summary. Warning: only use when geometry is simple enough.",
     )
-    
+
     args = parser.parse_args()
 
     macro_file = generate_macro(args)
@@ -154,20 +153,17 @@ def remage_geometry_benchmark_cli() -> int:
 
     try:
         # run remage
-        ec, _ = remage_run(
-            macros=macro_file
-        )
+        ec, _ = remage_run(macros=macro_file)
 
-        sim_output_file = generate_output_file_path(Path(args.geometry), Path(args.output_dir))
+        sim_output_file = generate_output_file_path(
+            Path(args.geometry), Path(args.output_dir)
+        )
 
         if ec != 0 and not sim_output_file.exists():
             print("Remage simulation failed.")
             return int(ec)
-        
-        sum_gen = SummaryGenerator(
-            sim_output_file=sim_output_file,
-            args=args
-        )
+
+        sum_gen = SummaryGenerator(sim_output_file=sim_output_file, args=args)
         analysis_results = sum_gen.perform_analysis()
         print("Geometry Benchmark Analysis Results:")
         for key, value in analysis_results.items():

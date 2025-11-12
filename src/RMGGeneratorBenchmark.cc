@@ -145,11 +145,11 @@ void RMGGeneratorBenchmark::BeginOfRunAction(const G4Run* r) {
   // It will be initialized by RMGRunAction::SetupAnalysisManager() if active.
 
   // whichntuple will be initialized to 0 on event 0
-  //Start the timer
-  starttime   = std::clock();
+  // Start the timer
+  starttime = std::clock();
   currenttime = std::clock();
-  
-  //Store total number of events to be processed
+
+  // Store total number of events to be processed
   totalnevents = r->GetNumberOfEventToBeProcessed();
 
   // The benchmarker assumes the world volume is a cube when calculating bounds
@@ -172,16 +172,10 @@ void RMGGeneratorBenchmark::BeginOfRunAction(const G4Run* r) {
   worldsolid->BoundingLimits(min, max);
 
   // Set up sampling dimensions based on user configuration or world bounds
-  if (sampling_width_x < 0) {
-    sampling_width_x = (max.x() - min.x());
-  }
-  if (sampling_width_y < 0) {
-    sampling_width_y = (max.y() - min.y());
-  }
-  if (sampling_width_z < 0) {
-    sampling_width_z = (max.z() - min.z());
-  }
-  
+  if (sampling_width_x < 0) { sampling_width_x = (max.x() - min.x()); }
+  if (sampling_width_y < 0) { sampling_width_y = (max.y() - min.y()); }
+  if (sampling_width_z < 0) { sampling_width_z = (max.z() - min.z()); }
+
   // Calculate increments and number of pixels
   // If user specified increment, use it; otherwise default to 30 pixels
   if (user_increment_x > 0) {
@@ -345,20 +339,31 @@ void RMGGeneratorBenchmark::SavePixel() {
     } else {
       median_time = sorted_times[n / 2];
     }
-    
+
     RMGLog::Out(RMGLog::debug, "Pixel complete with ", n, " bunches. Median CPU time: ", median_time, " s");
   }
 
   double median_time_per_event = 0.0;
-  if (events_per_bunch > 0) {
-    median_time_per_event = median_time / events_per_bunch;
-  }
+  if (events_per_bunch > 0) { median_time_per_event = median_time / events_per_bunch; }
 
-  RMGLog::Out(RMGLog::debug, "Saving pixel data: Ntuple ", whichntuple,
-              ", X: ", xcurrent, ", Y: ", ycurrent, ", Z: ", zcurrent,
-              ", Median CPU time of bunch: ", median_time, " s, Median CPU time per event: ", median_time_per_event, " s");
+  RMGLog::Out(
+      RMGLog::debug,
+      "Saving pixel data: Ntuple ",
+      whichntuple,
+      ", X: ",
+      xcurrent,
+      ", Y: ",
+      ycurrent,
+      ", Z: ",
+      zcurrent,
+      ", Median CPU time of bunch: ",
+      median_time,
+      " s, Median CPU time per event: ",
+      median_time_per_event,
+      " s"
+  );
   benchmark_scheme->SavePixel(whichntuple, xcurrent, ycurrent, zcurrent, median_time_per_event);
-  
+
   // Reset for next pixel
   bunch_times.clear();
   current_event_in_pixel = 0;
@@ -369,11 +374,11 @@ void RMGGeneratorBenchmark::GeneratePrimaries(G4Event* event) {
 
   ID = event->GetEventID();
 
-  if(ID >= neventsperpixel * totalnpixels)
-    return;//Should only apply in situations where the nevents doesn't divide evenly into the npixels
-  
-  if(ID==0) {
-    //Originally initialized in BeginOfRunAction, but delay between that and evt 0 is non-trivial
+  if (ID >= neventsperpixel * totalnpixels)
+    return; // Should only apply in situations where the nevents doesn't divide evenly into the npixels
+
+  if (ID == 0) {
+    // Originally initialized in BeginOfRunAction, but delay between that and evt 0 is non-trivial
     currenttime = std::clock();
     bunchstarttime = std::clock();
 
@@ -390,7 +395,7 @@ void RMGGeneratorBenchmark::GeneratePrimaries(G4Event* event) {
     ycurrent = ylimit + 0.5 * increment_y;
     zcurrent = zlimit + 0.5 * increment_z;
   }
-  
+
   // Check if we've completed a bunch
   if (current_event_in_pixel > 0 && current_event_in_pixel % events_per_bunch == 0) {
     double bunch_time = static_cast<double>(std::clock() - bunchstarttime) / CLOCKS_PER_SEC;

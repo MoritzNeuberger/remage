@@ -1,10 +1,10 @@
 #ifndef _RMG_GENERATOR_BENCHMARK_HH_
 #define _RMG_GENERATOR_BENCHMARK_HH_
 
+#include <chrono>
 #include <memory>
 #include <string>
 #include <vector>
-#include <chrono>
 
 #include "CLHEP/Units/SystemOfUnits.h"
 #include "G4AnalysisManager.hh"
