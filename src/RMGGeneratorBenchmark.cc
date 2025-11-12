@@ -3,6 +3,7 @@
 
 #include <cmath>
 #include <ctime>
+#include <chrono>
 #include <algorithm>
 
 #include "G4GenericMessenger.hh"
@@ -145,8 +146,8 @@ void RMGGeneratorBenchmark::BeginOfRunAction(const G4Run* r) {
 
   // whichntuple will be initialized to 0 on event 0
   //Start the timer
-  starttime   = double(clock())/1000000.;
-  currenttime = double(clock())/1000000.;
+  starttime   = std::clock();
+  currenttime = std::clock();
   
   //Store total number of events to be processed
   totalnevents = r->GetNumberOfEventToBeProcessed();
@@ -163,13 +164,13 @@ void RMGGeneratorBenchmark::BeginOfRunAction(const G4Run* r) {
   
   // Set up sampling dimensions based on user configuration or world bounds
   if (sampling_width_x < 0) {
-    sampling_width_x = (max.x() - min.x()) * 1.25;
+    sampling_width_x = (max.x() - min.x());
   }
   if (sampling_width_y < 0) {
-    sampling_width_y = (max.y() - min.y()) * 1.25;
+    sampling_width_y = (max.y() - min.y());
   }
   if (sampling_width_z < 0) {
-    sampling_width_z = (max.z() - min.z()) * 1.25;
+    sampling_width_z = (max.z() - min.z());
   }
   
   // Calculate increments and number of pixels
@@ -254,7 +255,7 @@ void RMGGeneratorBenchmark::EndOfRunAction(const G4Run* /*r*/) {
   if (!bunch_times.empty() || current_event_in_pixel > 0) {
     // Save any remaining partial bunch
     if (current_event_in_pixel % events_per_bunch != 0 && current_event_in_pixel > 0) {
-      double bunch_time = double(clock())/1000000. - bunchstarttime;
+      double bunch_time = static_cast<double>(std::clock() - bunchstarttime) / CLOCKS_PER_SEC;
       bunch_times.push_back(bunch_time);
     }
     
@@ -292,12 +293,18 @@ void RMGGeneratorBenchmark::SavePixel()
       median_time = sorted_times[n/2];
     }
     
-    RMGLog::Out(RMGLog::debug, "Pixel complete with ", n, " bunches. Median time: ", median_time, " s");
+    RMGLog::Out(RMGLog::debug, "Pixel complete with ", n, " bunches. Median CPU time: ", median_time, " s");
   }
+
+  double median_time_per_event = 0.0;
+  if (events_per_bunch > 0) {
+    median_time_per_event = median_time / events_per_bunch;
+  }
+
   RMGLog::Out(RMGLog::debug, "Saving pixel data: Ntuple ", whichntuple,
               ", X: ", xcurrent, ", Y: ", ycurrent, ", Z: ", zcurrent,
-              ", Median time: ", median_time, " s");
-  benchmark_scheme->SavePixel(whichntuple, xcurrent, ycurrent, zcurrent, median_time);
+              ", Median CPU time of bunch: ", median_time, " s, Median CPU time per event: ", median_time_per_event, " s");
+  benchmark_scheme->SavePixel(whichntuple, xcurrent, ycurrent, zcurrent, median_time_per_event);
   
   // Reset for next pixel
   bunch_times.clear();
@@ -314,8 +321,8 @@ void RMGGeneratorBenchmark::GeneratePrimaries(G4Event* event) {
   
   if(ID==0) {
     //Originally initialized in BeginOfRunAction, but delay between that and evt 0 is non-trivial
-    currenttime = double(clock())/1000000.;
-    bunchstarttime = currenttime;
+    currenttime = std::clock();
+    bunchstarttime = std::clock();
     current_event_in_pixel = 0;
     bunch_times.clear();
     
@@ -330,12 +337,12 @@ void RMGGeneratorBenchmark::GeneratePrimaries(G4Event* event) {
     zcurrent = zlimit + 0.5 * increment_z;
   }
   
-  // Check if we've completed a 5% bunch
+  // Check if we've completed a bunch
   if (current_event_in_pixel > 0 && current_event_in_pixel % events_per_bunch == 0) {
-    double bunch_time = double(clock())/1000000. - bunchstarttime;
+    double bunch_time = static_cast<double>(std::clock() - bunchstarttime) / CLOCKS_PER_SEC;
     bunch_times.push_back(bunch_time);
-    bunchstarttime = double(clock())/1000000.;
-    RMGLog::Out(RMGLog::debug, "Bunch complete at event # ", ID, ", time: ", bunch_time, " s");
+    bunchstarttime = std::clock();
+    RMGLog::Out(RMGLog::debug, "Bunch complete at event # ", ID, ", CPU time: ", bunch_time, " s");
   }
   
   // Debug: Check pixel completion condition
@@ -349,7 +356,7 @@ void RMGGeneratorBenchmark::GeneratePrimaries(G4Event* event) {
     //We'll be changing pixels, so save current data
     // Save the last partial bunch if any events remain
     if (current_event_in_pixel % events_per_bunch != 0) {
-      double bunch_time = double(clock())/1000000. - bunchstarttime;
+      double bunch_time = static_cast<double>(std::clock() - bunchstarttime) / CLOCKS_PER_SEC;
       bunch_times.push_back(bunch_time);
     }
     
@@ -358,8 +365,8 @@ void RMGGeneratorBenchmark::GeneratePrimaries(G4Event* event) {
     pixel_just_completed = true;
     
     // Reset for next pixel and advance to next pixel
-    bunchstarttime = double(clock())/1000000.;
-    
+    bunchstarttime = std::clock();
+
     // Advance to the next pixel based on current plane
     if (whichntuple == 0) {  // XZ plane
       pixel_x_index++;

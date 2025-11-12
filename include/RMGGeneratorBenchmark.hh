@@ -4,6 +4,7 @@
 #include <memory>
 #include <string>
 #include <vector>
+#include <chrono>
 
 #include "CLHEP/Units/SystemOfUnits.h"
 #include "G4GenericMessenger.hh"
@@ -69,12 +70,12 @@ private:
   int ID;
   int whichntuple;
   G4ThreeVector trs;
-  
-  double starttime;
-  double currenttime;
-  double bunchstarttime;
-  
-  // For tracking 5% bunches and calculating median
+
+  std::clock_t starttime;
+  std::clock_t currenttime;
+  std::clock_t bunchstarttime;
+
+  // For tracking bunches and calculating median (stores CPU time in seconds)
   std::vector<double> bunch_times;
   int events_per_bunch;
   int current_event_in_pixel;
