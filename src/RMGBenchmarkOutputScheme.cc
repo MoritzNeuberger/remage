@@ -28,33 +28,21 @@ void RMGBenchmarkOutputScheme::AssignOutputNames(G4AnalysisManager* ana_man) {
   auto rmg_man = RMGOutputManager::Instance();
 
   // Create auxiliary ntuple for XZ plane benchmark
-  fNtupleIDs[0] = rmg_man->CreateAndRegisterAuxNtuple(
-      "benchmark_xz",
-      "RMGBenchmarkOutputScheme",
-      ana_man
-  );
+  fNtupleIDs[0] = rmg_man->CreateAndRegisterAuxNtuple("benchmark_xz", "RMGBenchmarkOutputScheme", ana_man);
   ana_man->CreateNtupleDColumn(fNtupleIDs[0], "X");
   ana_man->CreateNtupleDColumn(fNtupleIDs[0], "Z");
   ana_man->CreateNtupleDColumn(fNtupleIDs[0], "Time");
   ana_man->FinishNtuple(fNtupleIDs[0]);
 
   // Create auxiliary ntuple for YZ plane benchmark
-  fNtupleIDs[1] = rmg_man->CreateAndRegisterAuxNtuple(
-      "benchmark_yz",
-      "RMGBenchmarkOutputScheme",
-      ana_man
-  );
+  fNtupleIDs[1] = rmg_man->CreateAndRegisterAuxNtuple("benchmark_yz", "RMGBenchmarkOutputScheme", ana_man);
   ana_man->CreateNtupleDColumn(fNtupleIDs[1], "Y");
   ana_man->CreateNtupleDColumn(fNtupleIDs[1], "Z");
   ana_man->CreateNtupleDColumn(fNtupleIDs[1], "Time");
   ana_man->FinishNtuple(fNtupleIDs[1]);
 
   // Create auxiliary ntuple for XY plane benchmark
-  fNtupleIDs[2] = rmg_man->CreateAndRegisterAuxNtuple(
-      "benchmark_xy",
-      "RMGBenchmarkOutputScheme",
-      ana_man
-  );
+  fNtupleIDs[2] = rmg_man->CreateAndRegisterAuxNtuple("benchmark_xy", "RMGBenchmarkOutputScheme", ana_man);
   ana_man->CreateNtupleDColumn(fNtupleIDs[2], "X");
   ana_man->CreateNtupleDColumn(fNtupleIDs[2], "Y");
   ana_man->CreateNtupleDColumn(fNtupleIDs[2], "Time");
@@ -85,15 +73,15 @@ void RMGBenchmarkOutputScheme::SavePixel(int plane_id, double x, double y, doubl
 
   int col_id = 0;
   switch (plane_id) {
-    case 0:  // XZ plane
+    case 0: // XZ plane
       ana_man->FillNtupleDColumn(ntuple_id, col_id++, x);
       ana_man->FillNtupleDColumn(ntuple_id, col_id++, z);
       break;
-    case 1:  // YZ plane
+    case 1: // YZ plane
       ana_man->FillNtupleDColumn(ntuple_id, col_id++, y);
       ana_man->FillNtupleDColumn(ntuple_id, col_id++, z);
       break;
-    case 2:  // XY plane
+    case 2: // XY plane
       ana_man->FillNtupleDColumn(ntuple_id, col_id++, x);
       ana_man->FillNtupleDColumn(ntuple_id, col_id++, y);
       break;

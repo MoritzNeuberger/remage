@@ -26,6 +26,7 @@
 #include "G4UserSteppingAction.hh"
 #include "G4UserTrackingAction.hh"
 
+#include "RMGBenchmarkOutputScheme.hh"
 #include "RMGGeometryCheckOutputScheme.hh"
 #include "RMGIsotopeFilterScheme.hh"
 #include "RMGLog.hh"
@@ -33,7 +34,6 @@
 #include "RMGTrackOutputScheme.hh"
 #include "RMGVGenerator.hh"
 #include "RMGVOutputScheme.hh"
-#include "RMGBenchmarkOutputScheme.hh"
 
 /**
  * @brief User initialization class.
@@ -157,7 +157,6 @@ class RMGUserInit {
       AddOptionalOutputScheme<RMGTrackOutputScheme>("Track");
       AddOptionalOutputScheme<RMGGeometryCheckOutputScheme>("GeometryCheck");
       AddOptionalOutputScheme<RMGBenchmarkOutputScheme>("Benchmark");
-      
     }
 
     /**
