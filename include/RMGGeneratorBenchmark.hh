@@ -52,7 +52,7 @@ class RMGGeneratorBenchmark : public RMGVGenerator {
     long totalnevents;
     size_t totalnpixels;
     int npixelsperrow;
-    double neventsperpixel;
+    int neventsperpixel;
     double cubesize;
 
     // Configurable sampling parameters (user-specified increments)
