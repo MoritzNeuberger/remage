@@ -50,7 +50,7 @@ class RMGGeneratorBenchmark : public RMGVGenerator {
     void DefineCommands();
 
     long totalnevents;
-    double totalnpixels;
+    size_t totalnpixels;
     int npixelsperrow;
     double neventsperpixel;
     double cubesize;
